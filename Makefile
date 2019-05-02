@@ -37,11 +37,11 @@ main.o: main.cpp
 
 .PHONY: run
 run: $(TARGET)
-	@python3 runtests.py -v
+	@python runtests.py
 
 .PHONY: diff
 diff: $(TARGET)
-	python3 runtests.py | diff - output.txt
+	python runtests.py | diff - output.txt
 
 .PHONY: clean
 clean:

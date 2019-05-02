@@ -12,22 +12,25 @@
 %error-verbose
 
 /* WRITEME: List all your tokens here */
-%token T_TRUE T_FALSE
-%token T_IDENTIFIER
-%token T_EQUALS T_AND T_NOT T_OR
-%token T_DOT T_SEMICOLON T_NEWLINE T_EOF T_COMMA T_EXTENDS
-%token T_OPENPAREN T_CLOSEPAREN T_OPENBRACE T_CLOSEBRACE T_RETURN T_RTYPE 
-%token T_PLUS T_MINUS T_DIVIDE T_MULT T_GREATER T_GREATEREQ
-%token T_IF T_ELSE T_WHILE T_DO T_NEW
-%token T_PRINT
-%token T_NUM
-%token T_INTEGER T_BOOLEAN
+%token
+T_TRUE T_FALSE
+T_IDENTIFIER
+T_EQUALS T_AND T_NOT T_OR
+T_DOT T_SEMICOLON T_NEWLINE T_EOF T_COMMA T_EXTENDS
+T_OPENPAREN T_CLOSEPAREN T_OPENBRACE T_CLOSEBRACE T_RETURN T_RTYPE 
+T_PLUS T_MINUS T_DIVIDE T_MULT T_GREATER T_GREATEREQ
+T_IF T_ELSE T_WHILE T_DO T_NEW
+T_PRINT
+T_NUM
+T_INTEGER T_BOOLEAN
+;
 
 /* WRITEME: Specify precedence here */
-%left T_GREATER T_GREATEREQ
+%left T_AND T_OR
+%left T_GREATER T_GREATEREQ T_EQUALS
 %left T_PLUS T_MINUS 
 %left T_DIVIDE T_MULT
-%right T_NOT T_UNARYMINUS
+%precedence T_NOT T_UNARYMINUS
 
 
 
@@ -50,26 +53,32 @@ Members: %empty
         ;
 
 Methods: %empty
-        | T_IDENTIFIER T_OPENPAREN Parameters T_CLOSEPAREN T_RTYPE Type T_OPENBRACE Body T_CLOSEBRACE Methods
+        | T_IDENTIFIER T_OPENPAREN Parameters T_CLOSEPAREN T_RTYPE Type T_OPENBRACE Body Return T_CLOSEBRACE Methods
         ;
 
-Body: Declarations Statements Return
+Body: Declarations Statements
+  | Declarations
+  | Statements
+  | %empty
     ;
 
-Statements: %empty
-  | Assignment Statements
-  | Call Statements
-  | If Statements
-  | While Statements
-  | Do Statements
-  | Print Statements
+Statement: Assignment 
+  | Call 
+  | If 
+  | While 
+  | Do 
+  | Print 
+  ;
+
+Statements: Statements Statement
+  | Statement
   ;
 
 Assignment: T_IDENTIFIER T_EQUALS Exp T_SEMICOLON
   | T_IDENTIFIER T_DOT T_IDENTIFIER T_EQUALS Exp T_SEMICOLON
   ;
 
-Call: MethodCall T_SEMICOLON Statements
+Call: MethodCall T_SEMICOLON 
   ;
 
 If: T_IF Exp T_OPENBRACE Statements T_CLOSEBRACE
@@ -88,8 +97,8 @@ Print: T_PRINT Exp T_SEMICOLON
 
 
 
-Declarations: %empty
-  | Declarations Type T_IDENTIFIER List T_SEMICOLON 
+Declarations:  Declarations Type T_IDENTIFIER List T_SEMICOLON 
+  | Type T_IDENTIFIER List T_SEMICOLON
   ;
 
 Return: %empty
